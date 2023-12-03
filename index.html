@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+		<title>Quiz</title>
+	</head>
+	<body>
+        <div id = "startscreen">
+            <br>
+		    <h1>QUIZ</h1>
+            <br>
+            <input autocomplete = "off" id = "team1nameinput" placeholder="Team 1 name..." />
+            <br>
+            <input autocomplete = "off" id = "team2nameinput" placeholder="Team 2 name..." />
+            <br>
+            <br>
+            <button id = "start" onclick = "togame()" disabled>Go!</button>
+        </div>
+        <div id = "game">
+            <div id = "questionEnd">
+                <br>
+                <h1 id = "onepoint">+1 Point</h1>
+                <h1 id = "minusonepoint">-1 Point</h1>
+                <h1 id = "nopoints">No points awarded!</h1>
+                <br>
+                <h2><span id = "1name"></span> has <span id = "1points"></span> points!</h2>
+                <h2><span id = "2name"></span> has <span id = "2points"></span> points!</h2>
+                <br>
+                <button id = "continue" onclick = "continueon()">CONTINUE</button>
+            </div>
+            <div id = "gameEnd">
+                <br>
+                <h1 id = "gameEndText">END OF GAME</h1>
+                <br>
+                <h2 id = "first"><span id = "winteam"></span> is in 1st place with <span id = "winpoints"></span> points!</h2>
+                <h2 id = "second"><span id = "winteam2"></span> is in 2nd place with <span id = "winpoints2"></span> points!</h2>
+            </div>
+            <br>
+            <h1 id = "current"><span id = "currentteamname"></span>'s turn!</h1>
+            <br>
+            <!-- --------------- -->
+            <div id = "q1">
+                <h2>What is the current percentage of hungry people?</h2><br>
+                <button id = "red" onclick = "selected();correct()">10%</button><br>
+                <button id = "green" onclick = "selected();wrong()">57%</button><br>
+                <button id = "blue" onclick = "selected();wrong()">30%</button><br>
+                <button id = "yellow" onclick = "selected();wrong();">20%</button><br>
+            </div>
+            <div id = "q2">
+                <h2>How many pounds of food are wasted in the US in a year?</h2><br>
+                <button id = "red" onclick = "selected();wrong()">97 Thousand Pounds</button><br>
+                <button id = "green" onclick = "selected();wrong()">100 Million Pounds</button><br>
+                <button id = "blue" onclick = "selected();correct()">119 Billion Pounds</button><br>
+                <button id = "yellow" onclick = "selected();wrong();">2 Tons</button><br>
+            </div>
+            <div id = "q3">
+                <h2>Is food waste connected to hunger?</h2><br>
+                <button id = "red" onclick = "selected();correct()">Yes</button><br>
+                <button id = "green" onclick = "selected();wrong()">No</button><br>
+            </div>
+            <div id = "q4">
+                <h2>Is there a surplus of food?</h2><br>
+                <button id = "red" onclick = "selected();correct()">Yes</button><br>
+                <button id = "green" onclick = "selected();wrong()">No</button><br>
+            </div>
+            <div id = "q5">
+                <h2>Can other factors influence someones likelihood of wasting food?</h2><br>
+                <button id = "red" onclick = "selected();correct()">Yes</button><br>
+                <button id = "green" onclick = "selected();wrong()">No</button><br>
+            </div>
+            <div id = "q6">
+                <h2>What is one thing that can be done?</h2><br>
+                <button id = "red" onclick = "selected();wrong()">Not sharing food</button><br>
+                <button id = "green" onclick = "selected();correct()">Food-Cooperative</button><br>
+                <button id = "blue" onclick = "selected();wrong()">Not doing anything</button><br>
+            </div>
+            <div id = "q7">
+                <h2>What is a food stamp?</h2><br>
+                <button id = "red" onclick = "selected();correct()">Money given for food based on how many people in your household</button><br>
+                <button id = "green" onclick = "selected();wrong()">A stamp on food that labels it food</button><br>
+                <button id = "blue" onclick = "selected();wrong()">Boxes that are marked as food</button><br>
+            </div>
+            <div id = "q8">
+                <h2>What is another thing that can be done?</h2><br>
+                <button id = "red" onclick = "selected();wrong();gameend();">Being wasteful</button><br>
+                <button id = "green" onclick = "selected();correct();gameend()">Watching unrelated content</button><br>
+                <button id = "blue" onclick = "selected();correct();gameend()">Food Planning</button><br>
+            </div>
+            <audio src = "https://www.dropbox.com/scl/fi/mjw871hjrda0hx0hiyxzn/countdownmusic.mp3?rlkey=6c3syaqv46ywtob8pyv9uhq3i&raw=1" id = "countdownmusic"></audio>
+            <!-- --------------- -->
+            <br>
+            <div id = "circle">
+                <h1 id = "time">30</h1>
+            </div>
+        </div>
+    <script>
+      // Variables
+var team1name = document.getElementById ("team1nameinput");
+var team2name = document.getElementById ("team2nameinput");
+/////
+var startbutton = document.getElementById ("start");
+/////
+var currentTeam = 0;
+var currentQuestion = 0;
+var team1score = 0;
+var team2score = 0;
+/////
+var game = document.getElementById ("game");
+var startscreen = document.getElementById ("startscreen");
+var questionEnd = document.getElementById ("questionEnd");
+/////
+var shouldcountdown = false;
+var startNumber = 29;
+/////
+var buttons = document.querySelectorAll('button');
+
+// Controls things that need to be repeatedly checked
+setInterval(function () {
+    // Checks if names are valid
+    if (team1name.value.length > 0 && team2name.value.length > 0) {
+        startbutton.disabled = false;
+        startbutton.style.color = "black";
+    } else {
+        startbutton.disabled = true;
+        startbutton.style.color = "grey";
+    }
+
+    // Shows the current team to make a guess
+    if (currentTeam == 0) {
+        document.getElementById ("currentteamname").innerHTML = team1name.value;
+    } else {
+        document.getElementById ("currentteamname").innerHTML = team2name.value;
+    }
+
+    // Shows teams points
+    document.getElementById ("1name").innerHTML = team1name.value;
+    document.getElementById ("1points").innerHTML = team1score;
+    document.getElementById ("2name").innerHTML = team2name.value;
+    document.getElementById ("2points").innerHTML = team2score;
+    
+
+    // Shows current question
+    switch(currentQuestion) {
+        case 0:
+            document.getElementById ("q1").style.display = "block";
+            break;
+        case 1:
+            document.getElementById ("q1").style.display = "none";
+            document.getElementById ("q2").style.display = "block";
+            break;
+        case 2:
+            document.getElementById ("q2").style.display = "none";
+            document.getElementById ("q3").style.display = "block";
+            break;
+        case 3:
+            document.getElementById ("q3").style.display = "none";
+            document.getElementById ("q4").style.display = "block";
+            break;
+        case 4:
+            document.getElementById ("q4").style.display = "none";
+            document.getElementById ("q5").style.display = "block";
+            break;
+        case 5:
+            document.getElementById ("q5").style.display = "none";
+            document.getElementById ("q6").style.display = "block";
+            break;
+        case 6:
+            document.getElementById ("q6").style.display = "none";
+            document.getElementById ("q7").style.display = "block";
+            break;
+        case 7:
+            document.getElementById ("q7").style.display = "none";
+            document.getElementById ("q8").style.display = "block";
+            break;
+    }
+}, 1)
+
+// Sets countdown when needed
+setInterval (function () {
+    if (shouldcountdown === true) {
+        document.getElementById ("time").innerHTML = startNumber--;
+    }
+
+    if (startNumber == -1) {
+        setTimeout (function () {
+            startNumber = 30;
+            document.getElementById ("time").innerHTML = startNumber;
+        },500);
+        shouldcountdown = false;
+        document.getElementById ("nopoints").style.display = "block";
+        document.getElementById ("minusonepoint").style.display = "none";
+        document.getElementById ("onepoint").style.display = "none";
+        questionEnd.style.opacity = "1";
+        questionEnd.style.pointerEvents = "all";
+    }
+}, 1000)
+
+// An answer is selected
+function selected () {
+    questionEnd.style.opacity = "1";
+    questionEnd.style.pointerEvents = "all";
+    shouldcountdown = false;
+    
+    setTimeout (function () {
+        startNumber = 30;
+        document.getElementById ("time").innerHTML = startNumber;
+    }, 500);
+
+    document.getElementById('countdownmusic').pause();
+}
+
+// Correct answer {
+function correct () {
+    document.getElementById ("onepoint").style.display = "block";
+    document.getElementById ("nopoints").style.display = "none";
+    document.getElementById ("minusonepoint").style.display = "none";
+    if (currentTeam == 0) {
+        team1score++;
+        document.getElementById ("onepoint").innerHTML = "+1 Point for " + team1name.value + "!";
+    } else {
+        team2score++;
+        document.getElementById ("onepoint").innerHTML = "+1 Point for " + team2name.value + "!";
+    }
+}
+
+// Wrong answer
+function wrong () {
+    document.getElementById ("onepoint").style.display = "none";
+    document.getElementById ("nopoints").style.display = "none";
+    document.getElementById ("minusonepoint").style.display = "block";
+    if (currentTeam == 0) {
+        team1score--;
+        document.getElementById ("minusonepoint").innerHTML = "-1 Point for " + team1name.value + "!";
+    } else {
+        team2score--;
+        document.getElementById ("minusonepoint").innerHTML = "-1 Point for " + team2name.value + "!";
+    }
+}
+
+// Starts game 
+function togame () {
+    startscreen.style.opacity = "0.0";
+    startscreen.style.pointerEvents = "none";
+    setTimeout (function () {
+        startscreen.style.display = "none";
+    }, 500)
+
+    setTimeout (function () {
+        game.style.opacity = "1.0";
+        game.style.pointerEvents = "all";
+        document.getElementById ("countdownmusic").play();
+        shouldcountdown = true;
+    }, 1000);
+}
+
+// Continue on with question
+function continueon () {
+    shouldcountdown = true;
+
+    currentQuestion++;
+
+    questionEnd.style.opacity = "0";
+    questionEnd.style.pointerEvents = "none";
+
+    if (currentTeam == 0) {
+        currentTeam++;
+    } else if (currentTeam == 1) {
+        currentTeam--;
+    }
+
+    var audio = document.getElementById('countdownmusic');
+    audio.currentTime = 0;
+    audio.play();
+}
+
+// Ends the game
+function gameend () {
+    if (team1score > team2score) {
+        document.getElementById ("winteam").innerHTML = team1name.value;
+        document.getElementById ("winpoints").innerHTML = team1score;
+        document.getElementById ("winteam2").innerHTML = team2name.value;
+        document.getElementById ("winpoints2").innerHTML = team2score;
+    } else if (team1score < team2score) {
+        document.getElementById ("winteam").innerHTML = team2name.value;
+        document.getElementById ("winpoints").innerHTML = team2score;
+        document.getElementById ("winteam2").innerHTML = team1name.value;
+        document.getElementById ("winpoints2").innerHTML = team1score;
+    } else {
+        document.getElementById ("first").innerHTML = team1name.value + " and " + team2name.value + " tied with " + team1score + " points!";
+        document.getElementById ("second").style.display = "none";
+    }
+
+    document.getElementById ("gameEnd").style.opacity = "1";
+    document.getElementById ("gameEnd").style.pointerEvents = "all";
+    document.getElementById ("questionEnd").style.zIndex = "0";
+}
+    </script>
+    <style>
+      *  {
+    font-family:"Open Sans", sans-serif;
+    text-align:center;
+    outline:none;
+    transition:all 0.5s;
+    margin:0;
+    padding:0;
+}
+
+body {
+	
+}
+
+input, #start {
+    width:200px;
+    height:50px;
+    border-radius:5px;
+    border:black solid 1px;
+    margin:1px;
+}
+
+#start {
+    background-color:skyblue;
+    border:skyblue solid 1px;
+    border-radius:50px;
+}
+
+#start:hover {
+    background-color:rgb(28, 176, 235);
+}
+
+#start:active {
+    transform:scale(0.95);
+}
+
+button {
+    cursor:pointer;
+}
+
+#game {
+    opacity:0;
+    pointer-events:none;
+}
+
+#red, #green, #blue, #yellow {
+    width:250px;
+    height:50px;
+    background-color:red;
+    border:black solid 1px;
+    border-radius:5px;
+    font-weight:bolder;
+    margin:1px;
+}
+#red:hover {
+    transform:scale(1.05);
+}
+
+#green {
+    background-color:green;
+}
+#green:hover {
+    transform:scale(1.05);
+}
+
+#blue {
+    background-color:blue;
+}
+#blue:hover {
+    transform:scale(1.05);
+}
+
+#yellow {
+    background-color:yellow;
+}
+#yellow:hover {
+    transform:scale(1.05);
+}
+
+#current {
+    text-decoration:dotted underline;
+}
+
+#startscreen {
+    overflow-y:hidden;
+}
+#game {
+    display:block;
+}
+
+#circle {
+    width:75px;
+    height:75px;
+    margin:auto;
+    line-height:75px;
+    background-color:green;
+    border-radius:50%;
+}
+
+#questionEnd, #gameEnd {
+    background-color:salmon;
+    width:100%;
+    height:999vh;
+    position:fixed;
+    opacity:0;
+    pointer-events:none;
+    z-index:0;
+}
+
+#onepoint, #nopoints, #minusonepoint, #gameEndText {
+    display:none;
+    text-decoration:dotted underline;
+}
+
+#gameEndText {
+    display:block;
+}
+
+#continue {
+    width:200px;
+    height:50px;
+    background-color:skyblue;
+    border-radius:50px;
+    border:black solid 1px;
+}
+
+#q2, #q3, #q4, #q5, #q6, #q7, #q8 {
+    display:none;
+}
+
+audio {
+    display:none;
+}
+    </style>
+	</body>
+</html>
